@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://hpedemo1.onrender.com";
+const BASE_URL = "https://hpe-it-solutions.onrender.com";
 
 const api = axios.create({
     baseURL: BASE_URL,
