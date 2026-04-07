@@ -11,15 +11,27 @@ swagger = Swagger(app)
 # ==============================
 # MONGODB CONNECTION
 # ==============================
-MONGO_URI="mongodb+srv://urvishnu:urvishnu1546@mydbcluster.kczb8ak.mongodb.net/?appName=MyDbCluster"
-client = MongoClient(MONGO_URI)
-db = client["HPE_DB"]
+MONGO_URI = "mongodb+srv://urvishnu:urvishnu1546@mydbcluster.kczb8ak.mongodb.net/?appName=MyDbCluster"
 
-contacts_col = db["contactinfo"]
-counters_col = db["counters"] # To manage auto-incrementing IDs
+try:
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    db = client["HPE_DB"]
+    contacts_col = db["contactinfo"]
+    counters_col = db["counters"]  # To manage auto-incrementing IDs
+    print("✅ MongoDB connection initialized")
+except Exception as e:
+    print(f"⚠️ MongoDB connection failed: {e}")
+    # Create dummy collections to prevent crashes
+    db = None
+    contacts_col = None
+    counters_col = None
 
 def get_next_sequence(name):
     """Generates a simple integer ID (1, 2, 3...)"""
+    if counters_col is None:
+        print("⚠️ Database not available, using fallback ID")
+        return 1
+
     count_doc = counters_col.find_one_and_update(
         {"_id": name},
         {"$inc": {"seq": 1}},
@@ -29,6 +41,10 @@ def get_next_sequence(name):
     return count_doc["seq"]
 
 def initialize_db():
+    if db is None:
+        print("⚠️ Database not available")
+        return
+
     try:
         client.admin.command('ping')
         print("✅ MongoDB Atlas Connected & Initialized")
