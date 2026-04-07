@@ -3,7 +3,7 @@ services:
     name: hpe-backend
     runtime: python3
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn your_application:wsgi
     envVars:
       - key: PYTHON_VERSION
         value: 3.14
